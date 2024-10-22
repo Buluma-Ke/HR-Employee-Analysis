@@ -16,3 +16,7 @@
    GROUP BY ed.YearsWithCurrManager
    ORDER BY avgjobsatisfaction;
    
+-- Attrition analysis
+SELECT * FROM employeedata
+ WHERE Attrition = "Yes";
+   
