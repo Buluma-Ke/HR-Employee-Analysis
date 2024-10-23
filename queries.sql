@@ -187,4 +187,8 @@ SELECT ed.PercentSalaryHike, ed.TotalWorkingYears,
  INNER JOIN employee_survey es
     ON ed.EmployeeID = es.EmployeeID
  WHERE ed.Attrition = 'Yes';
+ 
+SELECT * FROM employeedata ;
+SELECT * FROM employee_survey ;
+SELECT * FROM manager_survey;
 
