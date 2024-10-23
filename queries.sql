@@ -1,21 +1,3 @@
--- Avarage salary per department
- SELECT Department, AVG(MonthlyIncome) avg_monthly_income
-   FROM employeedata
-  GROUP BY Department
-  ORDER BY avg_monthly_income DESC;
-  
--- Average Monthly income by Education field
- SELECT EducationField, AVG(MonthlyIncome) avg_monthly_income
-   FROM employeedata
-  GROUP BY EducationField
-  ORDER BY avg_monthly_income DESC;
-  
-  SELECT ed.YearsWithCurrManager, AVG(es.JobSatisfaction) avgjobsatisfaction
-    FROM employeedata ed
-   INNER JOIN employee_survey es
-   GROUP BY ed.YearsWithCurrManager
-   ORDER BY avgjobsatisfaction;
-   
 -- Attrition analysis
 SELECT Age, JobLevel, JobRole, Department, DistanceFromHome, 
        Gender, NumCompaniesWorked, PercentSalaryHike
@@ -145,8 +127,64 @@ SELECT EducationField,Gender, COUNT(*) numofemployees
  ORDER BY JobLevel, Gender, numofemployees;
  
  -- Compensation Analysis
- 
  SELECT Department, AVG(MonthlyIncome) AvgMonthlyincome
    FROM employeedata
   GROUP BY Department
   ORDER BY AvgMonthlyincome;
+  
+-- Avarage salary per department
+ SELECT Department, AVG(MonthlyIncome) avg_monthly_income
+   FROM employeedata
+  GROUP BY Department
+  ORDER BY avg_monthly_income DESC;
+  
+-- Average Monthly income by Education field
+SELECT EducationField, AVG(MonthlyIncome) avg_monthly_income
+  FROM employeedata
+ GROUP BY EducationField
+ ORDER BY avg_monthly_income DESC;
+ 
+ -- Average Monthly income by Job role
+SELECT JobRole, AVG(MonthlyIncome) avg_monthly_income
+  FROM employeedata
+ GROUP BY JobRole
+ ORDER BY avg_monthly_income;
+ 
+-- Average Monthly income by Job Level
+SELECT JobLevel, AVG(MonthlyIncome) avg_monthly_income
+  FROM employeedata
+ GROUP BY JobLevel
+ ORDER BY JobLevel;
+ 
+ -- Salary hikes by Years at company
+ SELECT YearsAtCompany, PercentSalaryHike
+   FROM employeedata
+  ORDER BY YearsAtCompany;
+
+SELECT * from employeedata;
+
+SELECT ed.PercentSalaryHike, ed.StandardHours, ed.TotalWorkingYears, 
+       ed.YearsAtCompany, ed.YearsSinceLastPromotion, ed.YearsWithCurrManager, 
+       ms.PerformanceRating
+  FROM employeedata ed
+ INNER JOIN manager_survey ms
+    ON ed.EmployeeID = ms.EmployeeID;
+
+-- Job satisfaction analysis
+
+SELECT ed.PercentSalaryHike, ed.TotalWorkingYears,
+       ed.YearsAtCompany, ed.YearsSinceLastPromotion, ed.YearsWithCurrManager, 
+       es.WorkLifeBalance, es.JobSatisfaction
+  FROM employeedata ed
+ INNER JOIN employee_survey es
+    ON ed.EmployeeID = es.EmployeeID;
+    
+-- among attritous employees
+SELECT ed.PercentSalaryHike, ed.TotalWorkingYears,
+       ed.YearsAtCompany, ed.YearsSinceLastPromotion, ed.YearsWithCurrManager, 
+       es.WorkLifeBalance, es.JobSatisfaction
+  FROM employeedata ed
+ INNER JOIN employee_survey es
+    ON ed.EmployeeID = es.EmployeeID
+ WHERE ed.Attrition = 'Yes';
+
