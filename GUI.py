@@ -22,47 +22,127 @@ class Toplevel(customtkinter.CTkToplevel):
         self.title("Welcome!")
         self.geometry("600x400")
 
-        # def gen_data_pg():
-        #     gen_data_frm = customtkinter.CTkFrame(self.page_frame)
 
-        #     gd =customtkinter.CTkLabel(gen_data_frm, text="general data")
-        #     gd.place(X=100, Y=200)
+        self.page_frame = customtkinter.CTkFrame(self)
+        self.page_frame.pack(side=customtkinter.RIGHT, fill=customtkinter.BOTH, expand=True)
 
-        #     gen_data_frm.pack(fill=customtkinter.BOTH, expand=True)
-
-
-        # self.page_frame = customtkinter.CTkFrame(self)
-        # self.page_frame.pack(side=customtkinter.RIGHT, fill=customtkinter.BOTH, expand=True)
-        # gen_data_pg()
 
         self.menu_bar_frame = customtkinter.CTkFrame(self)
         self.menu_bar_frame.pack(side=customtkinter.LEFT, fill=customtkinter.Y, pady=4, padx=3)
         self.menu_bar_frame.pack_propagate(flag=True)
         #self.menu_bar_frame.pack_configure(width=45)
 
-        gen_data_button = customtkinter.CTkButton(master=self.menu_bar_frame, text= "General Data", fg_color="gray1")
+
+
+        gen_data_button = customtkinter.CTkButton(master=self.menu_bar_frame,command=lambda: self.show_frame(self.gen_data_pg), text= "General Data", fg_color="gray1")
         gen_data_button.pack(padx=4, pady=10)
 
-        Emp_data_button = customtkinter.CTkButton(master=self.menu_bar_frame, text= "Employee Survey", fg_color="gray5")
+        Emp_data_button = customtkinter.CTkButton(master=self.menu_bar_frame,command=lambda: self.show_frame(self.Emp_data_pg), text= "Employee Survey", fg_color="gray5")
         Emp_data_button.pack(padx=4, pady=20)
 
-        Mngr_data_button = customtkinter.CTkButton(master=self.menu_bar_frame, text= "Manager Survey", fg_color="gray10")
+        Mngr_data_button = customtkinter.CTkButton(master=self.menu_bar_frame, command=lambda: self.show_frame(self.Mngr_data_pg), text= "Manager Survey", fg_color="gray10")
         Mngr_data_button.pack(padx=4, pady=20)
 
-        Dem_button = customtkinter.CTkButton(master=self.menu_bar_frame, text= "Demographic Insights", fg_color="gray15")
+        Dem_button = customtkinter.CTkButton(master=self.menu_bar_frame, command=lambda: self.show_frame(self.Dem_data_pg), text= "Demographic Insights", fg_color="gray15")
         Dem_button.pack(padx=4, pady=20)
 
-        Comp_button = customtkinter.CTkButton(master=self.menu_bar_frame, text= "Compensaion Analysis", fg_color="gray20")
+        Comp_button = customtkinter.CTkButton(master=self.menu_bar_frame,command= lambda: self.show_frame(self.Comp_data_pg), text= "Compensaion Analysis", fg_color="gray20")
         Comp_button.pack(padx=4, pady=20)
 
-        Perf_button = customtkinter.CTkButton(master=self.menu_bar_frame, text= "Performance Metrics", fg_color="gray23")
+        Perf_button = customtkinter.CTkButton(master=self.menu_bar_frame,command= lambda: self.show_frame(self.Perf_data_pg), text= "Performance Metrics", fg_color="gray23")
         Perf_button.pack(padx=4, pady=20)
 
-        Jobsat_button = customtkinter.CTkButton(master=self.menu_bar_frame, text= "Job Satisfaction", fg_color="gray25")
+        Jobsat_button = customtkinter.CTkButton(master=self.menu_bar_frame, command= lambda: self.show_frame(self.Jobsat_data_pg), text= "Job Satisfaction", fg_color="gray25")
         Jobsat_button.pack(padx=4, pady=20)
 
-        Att_button = customtkinter.CTkButton(master=self.menu_bar_frame, text= "Attrition Analysis", fg_color="gray30")
+        Att_button = customtkinter.CTkButton(master=self.menu_bar_frame, command= lambda: self.show_frame(self.Att_data_pg), text= "Attrition Analysis", fg_color="gray30")
         Att_button.pack(padx=4, pady=20)
+
+        # Initially show the general data page
+        self.show_frame(self.gen_data_pg)
+
+    def show_frame(self, frame_func):
+        # Clear current frame
+        for widget in self.page_frame.winfo_children():
+            widget.destroy()
+        # Call the frame function to create the new frame
+        frame_func()
+
+
+    def gen_data_pg(self):
+        gen_data_frm = customtkinter.CTkFrame(self.page_frame)
+
+        # gd =customtkinter.CTkLabel(gen_data_frm, text="general data")
+        # gd.pack(padx=100, pady=200)
+
+        # gen_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+        
+        
+
+    def Emp_data_pg(self):
+        Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+
+        gd =customtkinter.CTkLabel(Emp_data_frm, text="Employee data")
+        gd.pack(padx=100, pady=200)
+
+        Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+
+
+    def Mngr_data_pg(self):
+        # Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+
+        # gd =customtkinter.CTkLabel(Emp_data_frm, text="Manager Data")
+        # gd.pack(padx=100, pady=200)
+
+        # Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+
+        self.table_frame = customtkinter.CTkFrame(self.page_frame)
+        self.table_frame.pack(fill=customtkinter.BOTH, expand=True)
+
+
+    def Dem_data_pg(self):
+        Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+
+        gd =customtkinter.CTkLabel(Emp_data_frm, text="Demographic Data")
+        gd.pack(padx=100, pady=200)
+
+        Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+
+
+    def Comp_data_pg(self):
+        Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+
+        gd =customtkinter.CTkLabel(Emp_data_frm, text="Compensation Data")
+        gd.pack(padx=100, pady=200)
+
+        Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+
+
+    def Perf_data_pg(self):
+        Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+
+        gd =customtkinter.CTkLabel(Emp_data_frm, text="Performance Metrics")
+        gd.pack(padx=100, pady=200)
+
+        Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+
+
+    def Jobsat_data_pg(self):
+        Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+
+        gd =customtkinter.CTkLabel(Emp_data_frm, text="Job satisfaction Data")
+        gd.pack(padx=100, pady=200)
+
+        Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+
+
+    def Att_data_pg(self):
+        Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+
+        gd =customtkinter.CTkLabel(Emp_data_frm, text="Attrition Data")
+        gd.pack(padx=100, pady=200)
+
+        Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
 
 
 class App(customtkinter.CTk):
