@@ -1,13 +1,13 @@
-from tkinter import *
+import tkinter as tk
 import customtkinter
 from tkinter import messagebox
+from tkinter import ttk
 # import PIL
 # from PIL import Image
-#import CustomTkinterMessagebox as CTkMessagebox
 
-from sqlalchemy import create_engine
-from sqlalchemy import URL
-from sqlalchemy import exc
+from sqlalchemy import create_engine, URL, exc, Table, MetaData, text
+from sqlalchemy.orm import sessionmaker
+
 
 
 
@@ -17,11 +17,12 @@ customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard),
 
 
 class Toplevel(customtkinter.CTkToplevel):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, engine, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title("Welcome!")
         self.geometry("600x400")
 
+        self.engine = engine
 
         self.page_frame = customtkinter.CTkFrame(self)
         self.page_frame.pack(side=customtkinter.RIGHT, fill=customtkinter.BOTH, expand=True)
@@ -57,6 +58,7 @@ class Toplevel(customtkinter.CTkToplevel):
 
         Att_button = customtkinter.CTkButton(master=self.menu_bar_frame, command= lambda: self.show_frame(self.Att_data_pg), text= "Attrition Analysis", fg_color="gray30")
         Att_button.pack(padx=4, pady=20)
+        
 
         # Initially show the general data page
         self.show_frame(self.gen_data_pg)
@@ -70,34 +72,149 @@ class Toplevel(customtkinter.CTkToplevel):
 
 
     def gen_data_pg(self):
-        gen_data_frm = customtkinter.CTkFrame(self.page_frame)
 
-        # gd =customtkinter.CTkLabel(gen_data_frm, text="general data")
-        # gd.pack(padx=100, pady=200)
+        self.gen_data_frm = customtkinter.CTkFrame(self.page_frame)
+        self.gen_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+        
+        tree = ttk.Treeview(self.gen_data_frm)
 
-        # gen_data_frm.pack(fill=customtkinter.BOTH, expand=True)
-        
-        
+        # Query the database using the engine
+        try:
+            with self.engine.connect() as connection:
+                table = connection.execute(text("SELECT * "
+                                               "FROM employeedata;"))
+                
+                #define number of columns
+                columns = ['Age', 'Attrition', 'BusinessTravel', 'Department', 'DistanceFromHome',
+                            'Education', 'EducationField', 'EmployeeCount', 'EmployeeID', 'Gender',
+                            'JobLevel', 'JobRole', 'MaritalStatus', 'MonthlyIncome',
+                            'NumCompaniesWorked', 'Over18', 'PercentSalaryHike', 'StandardHours',
+                            'StockOptionLevel', 'TotalWorkingYears', 'TrainingTimesLastYear',
+                            'YearsAtCompany', 'YearsSinceLastPromotion', 'YearsWithCurrManager']
+                
+                tree["columns"] = columns
+                tree["show"] = "headings"
+                
+                # assign widh min width and anchor to the respective columns
+                for column in columns:
+                    tree.heading(column, text=column, anchor=tk.CENTER)
+                    tree.column(column, width=50, anchor=tk.CENTER)
+
+
+                for row in table:
+                    tree.insert('', 'end', values = [str(value) for value in row])
+
+            tree.pack(fill=customtkinter.BOTH, expand=True)
+
+                # Optional: Add a scrollbar for the Treeview
+            yscrollbar = ttk.Scrollbar(self.gen_data_frm, orient="vertical", command=tree.yview)
+            tree.configure(yscroll=yscrollbar.set)
+            yscrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+            # x axis scroll bar
+            # xscrollbar = ttk.Scrollbar(self.gen_data_frm, orient="horizontal", command=tree.xview)
+            # tree.configure(xscroll=xscrollbar.set)
+            # xscrollbar.pack(side=tk.BOTTOM, fill=tk.x)
+
+
+    # Pack the Treeview again after adding the scrollbar
+            tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+
+        except exc.SQLAlchemyError as e:
+            print(e)
+            messagebox.showerror("Error", f"Database query failed: {str(e)}")
 
     def Emp_data_pg(self):
-        Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+        self.Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+        self.Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+        
+        tree = ttk.Treeview(self.Emp_data_frm)
 
-        gd =customtkinter.CTkLabel(Emp_data_frm, text="Employee data")
-        gd.pack(padx=100, pady=200)
+        # Query the database using the engine
+        try:
+            with self.engine.connect() as connection:
+                table = connection.execute(text("SELECT * "
+                                               "FROM employee_survey;"))
+                
+                #define number of columns
+                columns = ['EmployeeID', 'EnvironmentSatisfaction', 'JobSatisfaction',
+                           'WorkLifeBalance']
+                
+                tree["columns"] = columns
+                tree["show"] = "headings"
+                
+                # assign widh min width and anchor to the respective columns
+                for column in columns:
+                    tree.heading(column, text=column, anchor=tk.CENTER)
+                    tree.column(column, width=50, anchor=tk.CENTER)
 
-        Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+
+                for row in table:
+                    tree.insert('', 'end', values = [str(value) for value in row])
+
+            tree.pack(fill=customtkinter.BOTH, expand=True)
+
+                # Optional: Add a scrollbar for the Treeview
+            yscrollbar = ttk.Scrollbar(self.Emp_data_frm, orient="vertical", command=tree.yview)
+            tree.configure(yscroll=yscrollbar.set)
+            yscrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+
+    # Pack the Treeview again after adding the scrollbar
+            tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+
+        except exc.SQLAlchemyError as e:
+            print(e)
+            messagebox.showerror("Error", f"Database query failed: {str(e)}")
 
 
     def Mngr_data_pg(self):
-        # Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+        self.Mngr_data_frm = customtkinter.CTkFrame(self.page_frame)
+        self.Mngr_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+        
+        tree = ttk.Treeview(self.Mngr_data_frm)
 
-        # gd =customtkinter.CTkLabel(Emp_data_frm, text="Manager Data")
-        # gd.pack(padx=100, pady=200)
+        # Query the database using the engine
+        try:
+            with self.engine.connect() as connection:
+                table = connection.execute(text("SELECT * "
+                                               "FROM manager_survey;"))
+                
+                #define number of columns
+                columns = ['EmployeeID', 'JobInvolvement', 'PerformanceRating']
+                
+                tree["columns"] = columns
+                tree["show"] = "headings"
+                
+                # assign widh min width and anchor to the respective columns
+                for column in columns:
+                    tree.heading(column, text=column, anchor=tk.CENTER)
+                    tree.column(column, width=50, anchor=tk.CENTER)
 
-        # Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
 
-        self.table_frame = customtkinter.CTkFrame(self.page_frame)
-        self.table_frame.pack(fill=customtkinter.BOTH, expand=True)
+                for row in table:
+                    tree.insert('', 'end', values = [str(value) for value in row])
+
+            tree.pack(fill=customtkinter.BOTH, expand=True)
+
+                # Optional: Add a scrollbar for the Treeview
+            yscrollbar = ttk.Scrollbar(self.Mngr_data_frm, orient="vertical", command=tree.yview)
+            tree.configure(yscroll=yscrollbar.set)
+            yscrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+
+    # Pack the Treeview again after adding the scrollbar
+            tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+
+        except exc.SQLAlchemyError as e:
+            print(e)
+            messagebox.showerror("Error", f"Database query failed: {str(e)}")
+
+
+
 
 
     def Dem_data_pg(self):
@@ -174,16 +291,17 @@ class App(customtkinter.CTk):
                                 )
             
             engine = create_engine(url_object)
-            engine.connect()
+            
+            
             print("Connection succesful")
             messagebox.showinfo(message="Connection succesful")
-            self.new_window()
+            self.new_window(engine)
         except exc.SQLAlchemyError :
             print("Connection failed")
             messagebox.showerror(message="Connection failed")
 
-    def new_window(self):
-            self.ui_window = Toplevel(self)
+    def new_window(self, engine):
+            self.ui_window = Toplevel(engine, self)
             self.withdraw()
 
  
