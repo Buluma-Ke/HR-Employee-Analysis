@@ -4,10 +4,14 @@ from tkinter import messagebox
 from tkinter import ttk
 # import PIL
 # from PIL import Image
-
 from sqlalchemy import create_engine, URL, exc, Table, MetaData, text
 from sqlalchemy.orm import sessionmaker
 
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sb
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 
@@ -21,7 +25,7 @@ class Toplevel(customtkinter.CTkToplevel):
         super().__init__(*args, **kwargs)
         self.title("Welcome!")
         self.geometry("600x400")
-
+        
         self.engine = engine
 
         self.page_frame = customtkinter.CTkFrame(self)
@@ -71,7 +75,7 @@ class Toplevel(customtkinter.CTkToplevel):
         frame_func()
 
 
-    def gen_data_pg(self):
+    def gen_data_pg(self): 
 
         self.gen_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.gen_data_frm.pack(fill=customtkinter.BOTH, expand=True)
@@ -105,6 +109,17 @@ class Toplevel(customtkinter.CTkToplevel):
                     tree.insert('', 'end', values = [str(value) for value in row])
 
             tree.pack(fill=customtkinter.BOTH, expand=True)
+
+            ##Treeview Customisation (theme colors are selected)
+            bg_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkFrame"]["fg_color"])
+            text_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkLabel"]["text_color"])
+            selected_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkButton"]["fg_color"])
+
+            treestyle = ttk.Style()
+            treestyle.theme_use('default')
+            treestyle.configure("Treeview", background=bg_color, foreground=text_color, fieldbackground=bg_color, borderwidth=0)
+            treestyle.map('Treeview', background=[('selected', bg_color)], foreground=[('selected', selected_color)])
+            self.bind("<<TreeviewSelect>>", lambda event: self.focus_set())
 
                 # Optional: Add a scrollbar for the Treeview
             yscrollbar = ttk.Scrollbar(self.gen_data_frm, orient="vertical", command=tree.yview)
@@ -147,13 +162,13 @@ class Toplevel(customtkinter.CTkToplevel):
                 # assign widh min width and anchor to the respective columns
                 for column in columns:
                     tree.heading(column, text=column, anchor=tk.CENTER)
-                    tree.column(column, width=50, anchor=tk.CENTER)
+                    tree.column(column, anchor=tk.CENTER)
 
 
                 for row in table:
                     tree.insert('', 'end', values = [str(value) for value in row])
 
-            tree.pack(fill=customtkinter.BOTH, expand=True)
+            tree.pack(side=tk.LEFT, expand=False)
 
                 # Optional: Add a scrollbar for the Treeview
             yscrollbar = ttk.Scrollbar(self.Emp_data_frm, orient="vertical", command=tree.yview)
@@ -182,13 +197,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 table = connection.execute(text("SELECT * "
                                                "FROM manager_survey;"))
                 
-                #define number of columns
+                #define columns
                 columns = ['EmployeeID', 'JobInvolvement', 'PerformanceRating']
-                
                 tree["columns"] = columns
                 tree["show"] = "headings"
                 
-                # assign widh min width and anchor to the respective columns
+                # assign width and anchor to the respective columns
                 for column in columns:
                     tree.heading(column, text=column, anchor=tk.CENTER)
                     tree.column(column, width=50, anchor=tk.CENTER)
@@ -197,7 +211,7 @@ class Toplevel(customtkinter.CTkToplevel):
                 for row in table:
                     tree.insert('', 'end', values = [str(value) for value in row])
 
-            tree.pack(fill=customtkinter.BOTH, expand=True)
+            tree.pack(fill=customtkinter.BOTH, expand=False)
 
                 # Optional: Add a scrollbar for the Treeview
             yscrollbar = ttk.Scrollbar(self.Mngr_data_frm, orient="vertical", command=tree.yview)
@@ -218,12 +232,110 @@ class Toplevel(customtkinter.CTkToplevel):
 
 
     def Dem_data_pg(self):
-        Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
+        print("Initializing Dem_data_pg function...")
+        
+        self.Dem_data_frm = customtkinter.CTkFrame(self.page_frame)
+        self.Dem_data_frm.pack(fill=customtkinter.BOTH, expand=True)  # Ensure the frame is packed
+        print("Dem_data_frm frame packed.")
 
-        gd =customtkinter.CTkLabel(Emp_data_frm, text="Demographic Data")
-        gd.pack(padx=100, pady=200)
+        # Fetch gender distribution data
+        try:
+            #print("Connecting to the database to fetch gender distribution data...")
+            with self.engine.connect() as connection:
+                query = text("SELECT Department, Gender, COUNT(*) numofemployees "
+                            "FROM employeedata " 
+                            "GROUP BY Department, Gender "
+                            "ORDER BY numofemployees;")
+                gender_dist_dept = connection.execute(query)
+                gender_dist_dept = pd.DataFrame(gender_dist_dept.fetchall(), columns=gender_dist_dept.keys())
+                #print("Data fetched successfully.")
+                #print(gender_dist_dept.head())  # Print the first few rows of the DataFrame
+        except exc.SQLAlchemyError as e:
+            #print(f"Database query error: {e}")
+            messagebox.showerror("Error", f"Database query failed: {str(e)}")
+            return  # Exit the function if there's an error
 
-        Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
+        # Create a bar plot using Matplotlib
+        #print("Creating a bar plot...")
+        fig1, ax1 = plt.subplots()
+
+        # Pivot the DataFrame for plotting
+        pivot_df = gender_dist_dept.pivot(index='Department', columns='Gender', values='numofemployees').fillna(0)
+        #print("Pivot DataFrame created:")
+        #print(pivot_df)  # Print to check the DataFrame
+
+        try:
+            pivot_df.plot(kind='bar', ax=ax1, color=['#1f77b4', '#ff7f0e'], edgecolor='black')
+
+            # Set title and labels
+            ax1.set_title("Gender Distribution per Department")
+            ax1.set_xlabel("Department")
+            ax1.set_ylabel("Number of Employees")
+            ax1.legend(title='Gender')
+            #print("Plot created successfully.")
+        except Exception as e:
+            print(f"Plotting error: {e}")
+
+        # Create and pack the canvas
+        upper_frame = customtkinter.CTkFrame(self.Dem_data_frm, bg_color="red")
+        upper_frame.pack(fill='both', expand=True)
+        print("Upper frame packed.")
+
+        canvas1 = FigureCanvasTkAgg(fig1, upper_frame)
+        canvas1.draw()
+        canvas1.get_tk_widget().pack(side="left", fill="both", expand=True)
+        print("Canvas added to the upper frame.")
+
+                # Fetch gender distribution data
+        try:
+            print("Connecting to the database to fetch gender distribution per education field...")
+            with self.engine.connect() as connection:
+                query2 = text("SELECT EducationField,Gender, COUNT(*) numofemployees "
+                            "FROM employeedata " 
+                            "GROUP BY EducationField, Gender "
+                            "ORDER BY numofemployees;")
+                gender_dist_edfield = connection.execute(query2)
+                gender_dist_edfield = pd.DataFrame(gender_dist_edfield.fetchall(), columns=gender_dist_edfield.keys())
+                print("Data fetched successfully.")
+                print(gender_dist_edfield.head())  # Print the first few rows of the DataFrame
+        except exc.SQLAlchemyError as e:
+            print(f"Database query error: {e}")
+            messagebox.showerror("Error", f"Database query failed: {str(e)}")
+            return  # Exit the function if there's an error
+
+        # Create a bar plot using Matplotlib
+        print("Creating a bar plot...")
+        fig2, ax2 = plt.subplots()
+
+        # Pivot the DataFrame for plotting
+        pivot_df2 = gender_dist_edfield.pivot(index='EducationField', columns='Gender', values='numofemployees').fillna(0)
+        print("Pivot DataFrame created:")
+        print(pivot_df2)  # Print to check the DataFrame
+
+        try:
+            pivot_df2.plot(kind='bar', ax=ax1, color=['#1f77b4', '#ff7f0e'], edgecolor='black')
+
+            # Set title and labels
+            ax2.set_title("Gender Distribution per EducationField")
+            ax2.set_xlabel("Education Field")
+            ax2.set_ylabel("Number of Employees")
+            #ax2.legend(title='Gender')
+            print("Plot created successfully.")
+        except Exception as e:
+            print(f"Plotting error: {e}")
+
+        # Create and pack the canvas
+        # upper_frame = customtkinter.CTkFrame(self.Dem_data_frm, bg_color="red")
+        # upper_frame.pack(fill='both', expand=True)
+        #print("Upper frame packed.")
+
+        canvas2 = FigureCanvasTkAgg(fig2, upper_frame)
+        canvas2.draw()
+        canvas2.get_tk_widget().pack(side="right", fill="both", expand=True)
+        print("Canvas added to the upper frame.")
+
+
+
 
 
     def Comp_data_pg(self):
