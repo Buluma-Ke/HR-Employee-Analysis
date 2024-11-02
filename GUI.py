@@ -35,10 +35,8 @@ class Toplevel(customtkinter.CTkToplevel):
         self.menu_bar_frame = customtkinter.CTkFrame(self)
         self.menu_bar_frame.pack(side=customtkinter.LEFT, fill=customtkinter.Y, pady=4, padx=3)
         self.menu_bar_frame.pack_propagate(flag=True)
-        #self.menu_bar_frame.pack_configure(width=45)
 
-
-
+        #Buttons
         gen_data_button = customtkinter.CTkButton(master=self.menu_bar_frame,command=lambda: self.show_frame(self.gen_data_pg), text= "General Data", fg_color="gray1")
         gen_data_button.pack(padx=4, pady=10)
 
@@ -73,6 +71,7 @@ class Toplevel(customtkinter.CTkToplevel):
             widget.destroy()
         # Call the frame function to create the new frame
         frame_func()
+
 
 
     def gen_data_pg(self): 
@@ -121,18 +120,13 @@ class Toplevel(customtkinter.CTkToplevel):
             treestyle.map('Treeview', background=[('selected', bg_color)], foreground=[('selected', selected_color)])
             self.bind("<<TreeviewSelect>>", lambda event: self.focus_set())
 
-                # Optional: Add a scrollbar for the Treeview
+            # Add a scrollbar for the Treeview
             yscrollbar = ttk.Scrollbar(self.gen_data_frm, orient="vertical", command=tree.yview)
             tree.configure(yscroll=yscrollbar.set)
             yscrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-            # x axis scroll bar
-            # xscrollbar = ttk.Scrollbar(self.gen_data_frm, orient="horizontal", command=tree.xview)
-            # tree.configure(xscroll=xscrollbar.set)
-            # xscrollbar.pack(side=tk.BOTTOM, fill=tk.x)
 
-
-    # Pack the Treeview again after adding the scrollbar
+            # Pack the Treeview  after adding the scrollbar
             tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
@@ -170,13 +164,11 @@ class Toplevel(customtkinter.CTkToplevel):
 
             tree.pack(side=tk.LEFT, expand=False)
 
-                # Optional: Add a scrollbar for the Treeview
+            # Add a scrollbar for the Treeview
             yscrollbar = ttk.Scrollbar(self.Emp_data_frm, orient="vertical", command=tree.yview)
             tree.configure(yscroll=yscrollbar.set)
             yscrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-
-    # Pack the Treeview again after adding the scrollbar
             tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
@@ -213,13 +205,11 @@ class Toplevel(customtkinter.CTkToplevel):
 
             tree.pack(fill=customtkinter.BOTH, expand=False)
 
-                # Optional: Add a scrollbar for the Treeview
+            # Add a scrollbar for the Treeview
             yscrollbar = ttk.Scrollbar(self.Mngr_data_frm, orient="vertical", command=tree.yview)
             tree.configure(yscroll=yscrollbar.set)
             yscrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-
-    # Pack the Treeview again after adding the scrollbar
             tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
@@ -232,24 +222,19 @@ class Toplevel(customtkinter.CTkToplevel):
 
 
     def Dem_data_pg(self):
-        print("Initializing Dem_data_pg function...")
         
         self.Att3_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.Att3_data_frm.pack(fill=customtkinter.BOTH, expand=True)  # Ensure the frame is packed
-        print("Dem_data_frm frame packed.")
 
         upper_frame = customtkinter.CTkFrame(self.Att3_data_frm)
         upper_frame.pack(fill='both', expand=True)
-        print("Upper frame packed.")
 
         Lower_frame = customtkinter.CTkFrame(self.Att3_data_frm)
         Lower_frame.pack(fill='both', expand=True)
-        print("Lower frame packed.")
 
         # Fetch gender distribution data
         def depertment():
             try:
-                #print("Connecting to the database to fetch gender distribution data...")
                 with self.engine.connect() as connection:
                     query = text("SELECT Department, Gender, COUNT(*) numofemployees "
                                 "FROM employeedata " 
@@ -257,19 +242,15 @@ class Toplevel(customtkinter.CTkToplevel):
                                 "ORDER BY numofemployees;")
                     gender_dist_dept = connection.execute(query)
                     gender_dist_dept = pd.DataFrame(gender_dist_dept.fetchall(), columns=gender_dist_dept.keys())
-                    #print("Data fetched successfully.")
-                    #print(gender_dist_dept.head())  # Print the first few rows of the DataFrame
+
             except exc.SQLAlchemyError as e:
-                #print(f"Database query error: {e}")
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
                 return  # Exit the function if there's an error
 
             # Create a bar plot using Matplotlib
-            #print("Creating a bar plot...")
             fig, ax = plt.subplots(figsize=(2, 2))
             # Pivot the DataFrame for plotting
             pivot_df = gender_dist_dept.pivot(index='Department', columns='Gender', values='numofemployees').fillna(0)
-
 
             try:
                 pivot_df.plot(kind='bar', ax=ax, color=['slateblue', 'darkslateblue'], edgecolor='black')
@@ -279,13 +260,13 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
-                for spine in ax.spines.values():
+
+                for spine in ax.spines.values(): # remove the frames
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
                 ax.legend(title='Gender')
                 
-                #print("Plot created successfully.")
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -293,7 +274,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, upper_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
         
         depertment()
 
@@ -302,14 +282,15 @@ class Toplevel(customtkinter.CTkToplevel):
             try:
                 print("Connecting to the database to fetch gender distribution per education field...")
                 with self.engine.connect() as connection:
+
                     query = text("SELECT EducationField,Gender, COUNT(*) numofemployees "
                                 "FROM employeedata " 
                                 "GROUP BY EducationField, Gender "
                                 "ORDER BY numofemployees;")
+                    
                     gender_dist_edfield = connection.execute(query)
                     gender_dist_edfield = pd.DataFrame(gender_dist_edfield.fetchall(), columns=gender_dist_edfield.keys())
-                    print("Data fetched successfully.")
-                    print(gender_dist_edfield.head())  # Print the first few rows of the DataFrame
+
             except exc.SQLAlchemyError as e:
                 print(f"Database query error: {e}")
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -321,8 +302,6 @@ class Toplevel(customtkinter.CTkToplevel):
 
             # Pivot the DataFrame for plotting
             pivot_df = gender_dist_edfield.pivot(index='EducationField', columns='Gender', values='numofemployees').fillna(0)
-            print("Pivot DataFrame created:")
-            print(pivot_df)  # Print to check the DataFrame
 
             try:
                 pivot_df.plot(kind='bar', ax=ax, color=['slateblue', 'darkslateblue'], edgecolor='black', legend=False)
@@ -332,12 +311,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
-                for spine in ax.spines.values():
+
+                for spine in ax.spines.values(): # remove the frames
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                #ax2.legend(title='Gender')
-                print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -345,23 +324,22 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, upper_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="right", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
 
         education_field()
 
 
         def Job_Level():
             try:
-                print("Connecting to the database to fetch gender distribution per Job level...")
                 with self.engine.connect() as connection:
+
                     query = text("SELECT JobLevel,Gender, COUNT(*) numofemployees "
                                     "FROM employeedata "
                                     "GROUP BY JobLevel, Gender "
                                     "ORDER BY JobLevel, Gender, numofemployees;")
+                    
                     gender_dist_Joblevel = connection.execute(query)
                     gender_dist_Joblevel = pd.DataFrame(gender_dist_Joblevel.fetchall(), columns=gender_dist_Joblevel.keys())
-                    print("Data fetched successfully.")
-                    print(gender_dist_Joblevel.head())  # Print the first few rows of the DataFrame
+
             except exc.SQLAlchemyError as e:
                 print(f"Database query error: {e}")
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -373,8 +351,6 @@ class Toplevel(customtkinter.CTkToplevel):
 
             # Pivot the DataFrame for plotting
             pivot_df = gender_dist_Joblevel.pivot(index='JobLevel', columns='Gender', values='numofemployees').fillna(0)
-            print("Pivot DataFrame created:")
-            print(pivot_df)  # Print to check the DataFrame
 
             try:
                 pivot_df.plot(kind='bar', ax=ax, color=['slateblue', 'darkslateblue'], edgecolor='black', legend=False)
@@ -384,35 +360,34 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
-                for spine in ax.spines.values():
+
+                for spine in ax.spines.values():  # remove the frames
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                #ax.set_ylabel("Number of Employees")
-                #ax2.legend(title='Gender')
-                print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
             canvas = FigureCanvasTkAgg(fig, Lower_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="right", fill="both", expand=True)
-            print("Canvas added to the Lower frame.")
 
         Job_Level()
 
 
         def Job_Role():
             try:
-                print("Connecting to the database to fetch gender distribution per Job Role...")
                 with self.engine.connect() as connection:
+
                     query = text("SELECT JobRole,Gender, COUNT(*) numofemployees "
                                     "FROM employeedata "
                                     "GROUP BY JobRole, Gender "
                                     "ORDER BY numofemployees;")
+                    
                     gender_dist_JobRole = connection.execute(query)
                     gender_dist_JobRole = pd.DataFrame(gender_dist_JobRole.fetchall(), columns=gender_dist_JobRole.keys())
-                    print("Data fetched successfully.")
-                    print(gender_dist_JobRole.head())  # Print the first few rows of the DataFrame
+
             except exc.SQLAlchemyError as e:
                 print(f"Database query error: {e}")
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -424,10 +399,6 @@ class Toplevel(customtkinter.CTkToplevel):
 
             # Pivot the DataFrame for plotting
             pivot_df = gender_dist_JobRole.pivot(index='JobRole', columns='Gender', values='numofemployees').fillna(0)
-            print("Pivot DataFrame created:")           # Pivot the DataFrame for plotting
-            #pivot_df = Avg_dep_sal.pivot(index='Department', values='AvgMonthlyincome').fillna(0)
-
-            print(pivot_df)  # Print to check the DataFrame
 
             try:
                 pivot_df.plot(kind='bar', ax=ax, color=['slateblue', 'darkslateblue'], edgecolor='black', legend=False)
@@ -437,19 +408,18 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
-                for spine in ax.spines.values():
+
+                for spine in ax.spines.values(): # remove the frames
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                #ax.set_ylabel("Number of Employees")
-                #ax2.legend(title='Gender')
-                print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
             canvas = FigureCanvasTkAgg(fig, Lower_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="right", fill="both", expand=True)
-            print("Canvas added to the Lower frame.")
 
         Job_Role()
 
@@ -464,22 +434,22 @@ class Toplevel(customtkinter.CTkToplevel):
 
         upper_frame = customtkinter.CTkFrame(self.Att3_data_frm)
         upper_frame.pack(fill='both', expand=True)
-        print("Upper frame packed.")
 
         Lower_frame = customtkinter.CTkFrame(self.Att3_data_frm)
         Lower_frame.pack(fill='both', expand=True)
-        print("Lower frame packed.")
+
 
         def depertment():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT Department, AVG(MonthlyIncome) AvgMonthlyincome "
                                     "FROM employeedata "
                                     "GROUP BY Department "
                                     "ORDER BY AvgMonthlyincome;")
+                    
                     Avg_dep_sal = connection.execute(query)
                     Avg_dep_sal = pd.DataFrame(Avg_dep_sal.fetchall(), columns=Avg_dep_sal.keys())
-                    print(Avg_dep_sal.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -488,10 +458,7 @@ class Toplevel(customtkinter.CTkToplevel):
             Avg_dep_sal['AvgMonthlyincome'] = pd.to_numeric(Avg_dep_sal['AvgMonthlyincome'], errors='coerce')
 
             fig, ax = plt.subplots()
-            # Pivot the DataFrame for plotting
-            #pivot_df = Avg_dep_sal.pivot(index='Department', values='AvgMonthlyincome').fillna(0)
-
-
+    
             try:
                 Avg_dep_sal.plot(ax=ax, kind='bar',x="Department", y="AvgMonthlyincome", color=['slateblue'], edgecolor='black', legend=False)
 
@@ -500,15 +467,14 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
-
 
             canvas = FigureCanvasTkAgg(fig, upper_frame)
             canvas.draw()
@@ -518,16 +484,18 @@ class Toplevel(customtkinter.CTkToplevel):
         depertment()
 
 
+
         def Education_field():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT EducationField, AVG(MonthlyIncome) AvgMonthlyincome "
                                     "FROM employeedata "
                                     "GROUP BY EducationField "
                                     "ORDER BY AvgMonthlyincome;")
+                    
                     Avg_edfield_sal = connection.execute(query)
                     Avg_edfield_sal = pd.DataFrame(Avg_edfield_sal.fetchall(), columns=Avg_edfield_sal.keys())
-                    print(Avg_edfield_sal.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -536,9 +504,6 @@ class Toplevel(customtkinter.CTkToplevel):
             Avg_edfield_sal['AvgMonthlyincome'] = pd.to_numeric(Avg_edfield_sal['AvgMonthlyincome'], errors='coerce')
 
             fig, ax = plt.subplots()
-            # Pivot the DataFrame for plotting
-            #pivot_df = Avg_dep_sal.pivot(index='Department', values='AvgMonthlyincome').fillna(0)
-
 
             try:
                 Avg_edfield_sal.plot(ax=ax, kind='bar',x="EducationField", y="AvgMonthlyincome", color=['slateblue'], edgecolor='black', legend=False)
@@ -548,12 +513,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -561,7 +526,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, upper_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
 
         Education_field()
 
@@ -569,13 +533,14 @@ class Toplevel(customtkinter.CTkToplevel):
         def Job_level():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT JobLevel, AVG(MonthlyIncome) AvgMonthlyincome "
                                     "FROM employeedata "
                                     "GROUP BY JobLevel "
                                     "ORDER BY JobLevel;")
+                    
                     Avg_joblevel_sal = connection.execute(query)
                     Avg_joblevel_sal = pd.DataFrame(Avg_joblevel_sal.fetchall(), columns=Avg_joblevel_sal.keys())
-                    print(Avg_joblevel_sal.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -584,9 +549,6 @@ class Toplevel(customtkinter.CTkToplevel):
             Avg_joblevel_sal['AvgMonthlyincome'] = pd.to_numeric(Avg_joblevel_sal['AvgMonthlyincome'], errors='coerce')
 
             fig, ax = plt.subplots(figsize=(3, 3))
-            # Pivot the DataFrame for plotting
-            #pivot_df = Avg_dep_sal.pivot(index='Department', values='AvgMonthlyincome').fillna(0)
-
 
             try:
                 Avg_joblevel_sal.plot(ax=ax, kind='bar',x="JobLevel", y="AvgMonthlyincome", color=['slateblue'], edgecolor='black', legend=False)
@@ -596,12 +558,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -614,16 +576,18 @@ class Toplevel(customtkinter.CTkToplevel):
         #Job_level()
 
 
+
         def Job_Role():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT JobRole, AVG(MonthlyIncome) AvgMonthlyincome "
                                     "FROM employeedata "
                                     "GROUP BY JobRole "
                                     "ORDER BY AvgMonthlyincome;")
+                    
                     Avg_joblRole_sal = connection.execute(query)
                     Avg_joblRole_sal = pd.DataFrame(Avg_joblRole_sal.fetchall(), columns=Avg_joblRole_sal.keys())
-                    print(Avg_joblRole_sal.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -632,8 +596,6 @@ class Toplevel(customtkinter.CTkToplevel):
             Avg_joblRole_sal['AvgMonthlyincome'] = pd.to_numeric(Avg_joblRole_sal['AvgMonthlyincome'], errors='coerce')
 
             fig, ax = plt.subplots(figsize=(10, 7))
-            # Pivot the DataFrame for plotting
-            #pivot_df = Avg_dep_sal.pivot(index='Department', values='AvgMonthlyincome').fillna(0)
 
 
             try:
@@ -644,12 +606,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -657,7 +619,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, Lower_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
 
         Job_Role()
         Job_level()
@@ -670,23 +631,22 @@ class Toplevel(customtkinter.CTkToplevel):
 
         upper_frame = customtkinter.CTkFrame(self.Att3_data_frm)
         upper_frame.pack(fill='both', expand=True)
-        print("Upper frame packed.")
 
         Lower_frame = customtkinter.CTkFrame(self.Att3_data_frm)
         Lower_frame.pack(fill='both', expand=True)
-        print("Lower frame packed.")
 
 
         def Attrition_by_wkngyrs():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT a.TotalWorkingYears, COUNT(*) numofemployees "
                                 "FROM (SELECT TotalWorkingYears FROM employeedata WHERE Attrition = 'Yes') a "
                                 "GROUP BY TotalWorkingYears "
                                 "ORDER BY TotalWorkingYears;")
+                    
                     Att_by_wrkngyrs = connection.execute(query)
                     Att_by_wrkngyrs = pd.DataFrame(Att_by_wrkngyrs.fetchall(), columns=Att_by_wrkngyrs.keys())
-                    print(Att_by_wrkngyrs.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -704,12 +664,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -717,7 +677,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, upper_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
 
         Attrition_by_wkngyrs()
 
@@ -725,13 +684,14 @@ class Toplevel(customtkinter.CTkToplevel):
         def Attrition_by_yrsatcomp():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT a.YearsAtCompany, COUNT(*) numofemployees "
                                 "FROM (SELECT YearsAtCompany FROM employeedata WHERE Attrition = 'Yes') a "
                                 "GROUP BY YearsAtCompany "
                                 "ORDER BY YearsAtCompany;")
+                    
                     Att_by_yrsatcomp = connection.execute(query)
                     Att_by_yrsatcomp = pd.DataFrame(Att_by_yrsatcomp.fetchall(), columns=Att_by_yrsatcomp.keys())
-                    print(Att_by_yrsatcomp.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -749,8 +709,10 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
                 # ax.set_ylabel("Number of Employees")
                 
@@ -762,7 +724,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, Lower_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
 
         Attrition_by_yrsatcomp()
 
@@ -774,22 +735,21 @@ class Toplevel(customtkinter.CTkToplevel):
 
         upper_frame = customtkinter.CTkFrame(self.Att2_data_frm)
         upper_frame.pack(fill='both', expand=True)
-        print("Upper frame packed.")
 
         Lower_frame = customtkinter.CTkFrame(self.Att2_data_frm)
         Lower_frame.pack(fill='both', expand=True)
-        print("Lower frame packed.")
 
         def Attrition_by_yrswthcurrmngr():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT a.YearsWithCurrManager, COUNT(*) numofemployees "
                                 "FROM (SELECT YearsWithCurrManager FROM employeedata WHERE Attrition = 'Yes') a "
                                 "GROUP BY YearsWithCurrManager "
                                 "ORDER BY YearsWithCurrManager;")
+                    
                     Att_by_yrswthcurrmngr = connection.execute(query)
                     Att_by_yrswthcurrmngr = pd.DataFrame(Att_by_yrswthcurrmngr.fetchall(), columns=Att_by_yrswthcurrmngr.keys())
-                    print(Att_by_yrswthcurrmngr.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -807,12 +767,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -820,7 +780,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, upper_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
 
         Attrition_by_yrswthcurrmngr()
 
@@ -828,13 +787,14 @@ class Toplevel(customtkinter.CTkToplevel):
         def Attrition_by_yrspromo():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT a.YearsSinceLastPromotion, COUNT(*) numofemployees "
                                 "FROM (SELECT YearsSinceLastPromotion FROM employeedata WHERE Attrition = 'Yes') a "
                                 "GROUP BY YearsSinceLastPromotion "
                                 "ORDER BY YearsSinceLastPromotion;")
+                    
                     Att_by_yrspromo = connection.execute(query)
                     Att_by_yrspromo = pd.DataFrame(Att_by_yrspromo.fetchall(), columns=Att_by_yrspromo.keys())
-                    print(Att_by_yrspromo.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -852,12 +812,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -865,7 +825,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, Lower_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
 
         Attrition_by_yrspromo()
 
@@ -877,21 +836,20 @@ class Toplevel(customtkinter.CTkToplevel):
 
         upper_frame = customtkinter.CTkFrame(self.Att3_data_frm)
         upper_frame.pack(fill='both', expand=True)
-        print("Upper frame packed.")
 
         lower_frame = customtkinter.CTkFrame(self.Att3_data_frm)
         lower_frame.pack(fill='both', expand=True)
-        print("Lower frame packed.")
 
         def Attrition_by_Educationfield():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT a.EducationField, COUNT(*) numofemployees "
                                 "FROM (SELECT EducationField FROM employeedata WHERE Attrition = 'Yes') a " 
                                 "GROUP BY EducationField ORDER BY numofemployees ASC;")
+                    
                     Att_by_educationfield = connection.execute(query)
                     Att_by_educationfield = pd.DataFrame(Att_by_educationfield.fetchall(), columns=Att_by_educationfield.keys())
-                    print(Att_by_educationfield.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -909,12 +867,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -922,7 +880,7 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, upper_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
+
 
         Attrition_by_Educationfield()
 
@@ -930,12 +888,13 @@ class Toplevel(customtkinter.CTkToplevel):
         def Attrition_by_joblevel():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT a.JobLevel, COUNT(*) numofemployees "
                                 "FROM (SELECT JobLevel FROM employeedata WHERE Attrition = 'Yes') a GROUP BY JobLevel "
                                 "ORDER BY JobLevel ASC;")
+                    
                     Att_by_joblevel = connection.execute(query)
                     Att_by_joblevel = pd.DataFrame(Att_by_joblevel.fetchall(), columns=Att_by_joblevel.keys())
-                    print(Att_by_joblevel.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -953,12 +912,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -966,7 +925,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, upper_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
 
         Attrition_by_joblevel()
 
