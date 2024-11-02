@@ -23,7 +23,7 @@ customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard),
 class Toplevel(customtkinter.CTkToplevel):
     def __init__(self, engine, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.title("Welcome!")
+        self.title("HR Employees Analysis!")
         self.geometry("600x400")
         
         self.engine = engine
@@ -931,9 +931,11 @@ class Toplevel(customtkinter.CTkToplevel):
         def Attrition_by_jobRole():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT a.JobRole, COUNT(*) numofemployees FROM (SELECT JobRole "
                                 "FROM employeedata WHERE Attrition = 'Yes') a "
                                 "GROUP BY JobRole ORDER BY numofemployees;")
+                    
                     Att_by_jobrole = connection.execute(query)
                     Att_by_jobrole = pd.DataFrame(Att_by_jobrole.fetchall(), columns=Att_by_jobrole.keys())
                     print(Att_by_jobrole.head())
@@ -954,12 +956,12 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
+
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+        
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -975,9 +977,11 @@ class Toplevel(customtkinter.CTkToplevel):
         def Attrition_by_dep():
             try:
                 with self.engine.connect() as connection:
+
                     query = text("SELECT a.Department, COUNT(*) as numofemployees "
                                 "FROM (SELECT Department FROM employeedata WHERE Attrition = 'Yes') a "
                                 "GROUP BY Department ORDER BY numofemployees;")
+                    
                     Att_by_dep = connection.execute(query)
                     Att_by_dep = pd.DataFrame(Att_by_dep.fetchall(), columns=Att_by_dep.keys())
                     print(Att_by_dep.head())
@@ -998,12 +1002,11 @@ class Toplevel(customtkinter.CTkToplevel):
                 ax.tick_params(axis='x', rotation=0)
                 ax.tick_params(axis='x', labelsize=6)
                 ax.tick_params(axis='y', labelsize=6)
+
                 for spine in ax.spines.values():
                     spine.set_visible(False)
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
-                
-                #print("Plot created successfully.")
+              
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -1024,7 +1027,7 @@ class App(customtkinter.CTk):
         self.title("LOGIN")
         self.geometry("600x400")
 
-        #yuX1MEubEur4Gw4O
+
         self.inputpassword = customtkinter.CTkEntry(master=self, placeholder_text= 'Enter password',
                                         width=240, height=25, border_width=1,corner_radius=5, show="*")
         self.inputpassword.pack(padx=20, pady=10)
