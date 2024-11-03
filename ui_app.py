@@ -36,45 +36,54 @@ class Toplevel(customtkinter.CTkToplevel):
         self.menu_bar_frame.pack(side=customtkinter.LEFT, fill=customtkinter.Y, pady=4, padx=3)
         self.menu_bar_frame.pack_propagate(flag=True)
 
-        #Buttons
-        gen_data_button = customtkinter.CTkButton(master=self.menu_bar_frame,command=lambda: self.show_frame(self.gen_data_pg), text= "General Data", fg_color="gray1")
-        gen_data_button.pack(padx=4, pady=10)
+        self.buttons = []
 
-        Emp_data_button = customtkinter.CTkButton(master=self.menu_bar_frame,command=lambda: self.show_frame(self.Emp_data_pg), text= "Employee Survey", fg_color="gray5")
-        Emp_data_button.pack(padx=4, pady=20)
+        # Define original colors for buttons
+        self.original_colors = {
+            "General Data": "gray1",
+            "Employee Survey": "gray5",
+            "Manager Survey": "gray10",
+            "Demographic Insights": "gray15",
+            "Compensation Analysis": "gray20",
+            "Attrition Analysis 1": "gray23",
+            "Attrition Analysis 2": "gray25",
+            "Attrition Analysis 3": "gray30"
+        }
 
-        Mngr_data_button = customtkinter.CTkButton(master=self.menu_bar_frame, command=lambda: self.show_frame(self.Mngr_data_pg), text= "Manager Survey", fg_color="gray10")
-        Mngr_data_button.pack(padx=4, pady=20)
-
-        Dem_button = customtkinter.CTkButton(master=self.menu_bar_frame, command=lambda: self.show_frame(self.Dem_data_pg), text= "Demographic Insights", fg_color="gray15")
-        Dem_button.pack(padx=4, pady=20)
-
-        Comp_button = customtkinter.CTkButton(master=self.menu_bar_frame,command= lambda: self.show_frame(self.Comp_data_pg), text= "Compensaion Analysis", fg_color="gray20")
-        Comp_button.pack(padx=4, pady=20)
-
-        Att1_button = customtkinter.CTkButton(master=self.menu_bar_frame,command= lambda: self.show_frame(self.AAt1_data_pg), text= "Attrition Analysis 1", fg_color="gray23")
-        Att1_button.pack(padx=4, pady=20)
-
-        Att2_button = customtkinter.CTkButton(master=self.menu_bar_frame, command= lambda: self.show_frame(self.Att2_data_pg), text= "Attrition Analysis 2", fg_color="gray25")
-        Att2_button.pack(padx=4, pady=20)
-
-        Att3_button = customtkinter.CTkButton(master=self.menu_bar_frame, command= lambda: self.show_frame(self.Att3_data_pg), text= "Attrition Analysis 3", fg_color="gray30")
-        Att3_button.pack(padx=4, pady=20)
-        
+        # Create buttons
+        for text, color in self.original_colors.items():
+            self.create_button(text, color)
 
         # Initially show the general data page
-        self.show_frame(self.gen_data_pg)
+        self.show_frame(self.general_data_pg)
+
+    def create_button(self, text, color):
+        button = customtkinter.CTkButton(master=self.menu_bar_frame,
+                                           command=lambda: self.on_button_click(button, text),
+                                           text=text, fg_color=color)
+        button.pack(padx=4, pady=10)
+        self.buttons.append(button)
+
+    def on_button_click(self, button, button_text):
+        # Reset all button colors to original
+        for btn in self.buttons:
+            btn.configure(fg_color=self.original_colors[btn.cget("text")])  # Reset to original color
+
+        # Change the clicked button's color to indicate selection
+        button.configure(fg_color="darkslateblue")  
+        # Show the corresponding frame
+        self.show_frame(getattr(self, f"{button_text.replace(' ', '_').lower()}_pg"))
 
     def show_frame(self, frame_func):
         # Clear current frame
         for widget in self.page_frame.winfo_children():
             widget.destroy()
-        # Call the frame function to create the new frame
+        
         frame_func()
 
 
 
-    def gen_data_pg(self): 
+    def general_data_pg(self): 
 
         self.gen_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.gen_data_frm.pack(fill=customtkinter.BOTH, expand=True)
@@ -134,7 +143,7 @@ class Toplevel(customtkinter.CTkToplevel):
             print(e)
             messagebox.showerror("Error", f"Database query failed: {str(e)}")
 
-    def Emp_data_pg(self):
+    def employee_survey_pg(self):
         self.Emp_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.Emp_data_frm.pack(fill=customtkinter.BOTH, expand=True)
         
@@ -177,7 +186,7 @@ class Toplevel(customtkinter.CTkToplevel):
             messagebox.showerror("Error", f"Database query failed: {str(e)}")
 
 
-    def Mngr_data_pg(self):
+    def manager_survey_pg(self):
         self.Mngr_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.Mngr_data_frm.pack(fill=customtkinter.BOTH, expand=True)
         
@@ -221,7 +230,7 @@ class Toplevel(customtkinter.CTkToplevel):
 
 
 
-    def Dem_data_pg(self):
+    def demographic_insights_pg(self):
         
         self.Att3_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.Att3_data_frm.pack(fill=customtkinter.BOTH, expand=True)  # Ensure the frame is packed
@@ -280,7 +289,6 @@ class Toplevel(customtkinter.CTkToplevel):
                 # Fetch gender distribution data
         def education_field():
             try:
-                print("Connecting to the database to fetch gender distribution per education field...")
                 with self.engine.connect() as connection:
 
                     query = text("SELECT EducationField,Gender, COUNT(*) numofemployees "
@@ -297,7 +305,6 @@ class Toplevel(customtkinter.CTkToplevel):
                 return  # Exit the function if there's an error
 
             # Create a bar plot using Matplotlib
-            print("Creating a bar plot...")
             fig, ax = plt.subplots()
 
             # Pivot the DataFrame for plotting
@@ -346,7 +353,6 @@ class Toplevel(customtkinter.CTkToplevel):
                 return  # Exit the function if there's an error
 
             # Create a bar plot using Matplotlib
-            print("Creating a bar plot...")
             fig, ax = plt.subplots(figsize=(2, 2))
 
             # Pivot the DataFrame for plotting
@@ -394,7 +400,6 @@ class Toplevel(customtkinter.CTkToplevel):
                 return  # Exit the function if there's an error
 
             # Create a bar plot using Matplotlib
-            print("Creating a bar plot...")
             fig, ax = plt.subplots(figsize=(10, 7))
 
             # Pivot the DataFrame for plotting
@@ -426,9 +431,7 @@ class Toplevel(customtkinter.CTkToplevel):
 
 
 
-
-
-    def Comp_data_pg(self):
+    def compensation_analysis_pg(self):
         self.Att3_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.Att3_data_frm.pack(fill=customtkinter.BOTH, expand=True)
 
@@ -479,7 +482,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, upper_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
         
         depertment()
 
@@ -571,7 +573,7 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, Lower_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
+        
 
         #Job_level()
 
@@ -624,7 +626,7 @@ class Toplevel(customtkinter.CTkToplevel):
         Job_level()
 
 
-    def AAt1_data_pg(self):
+    def attrition_analysis_1_pg(self):
         self.Att3_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.Att3_data_frm.pack(fill=customtkinter.BOTH, expand=True)
 
@@ -714,9 +716,7 @@ class Toplevel(customtkinter.CTkToplevel):
                     spine.set_visible(False)
 
                 ax.set_xlabel("")
-                # ax.set_ylabel("Number of Employees")
                 
-                #print("Plot created successfully.")
             except Exception as e:
                 print(f"Plotting error: {e}")
 
@@ -729,7 +729,7 @@ class Toplevel(customtkinter.CTkToplevel):
 
 
 
-    def Att2_data_pg(self):
+    def attrition_analysis_2_pg(self):
         self.Att2_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.Att2_data_frm.pack(fill=customtkinter.BOTH, expand=True)
 
@@ -829,7 +829,7 @@ class Toplevel(customtkinter.CTkToplevel):
         Attrition_by_yrspromo()
 
 
-    def Att3_data_pg(self):
+    def attrition_analysis_3_pg(self):
         self.Att3_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.Att3_data_frm.pack(fill=customtkinter.BOTH, expand=True)
 
@@ -938,7 +938,6 @@ class Toplevel(customtkinter.CTkToplevel):
                     
                     Att_by_jobrole = connection.execute(query)
                     Att_by_jobrole = pd.DataFrame(Att_by_jobrole.fetchall(), columns=Att_by_jobrole.keys())
-                    print(Att_by_jobrole.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -969,7 +968,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, lower_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
 
         Attrition_by_jobRole()
 
@@ -984,7 +982,6 @@ class Toplevel(customtkinter.CTkToplevel):
                     
                     Att_by_dep = connection.execute(query)
                     Att_by_dep = pd.DataFrame(Att_by_dep.fetchall(), columns=Att_by_dep.keys())
-                    print(Att_by_dep.head())
 
             except exc.SQLAlchemyError as e:
                 messagebox.showerror("Error", f"Database query failed: {str(e)}")
@@ -1014,11 +1011,9 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas = FigureCanvasTkAgg(fig, lower_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
-            print("Canvas added to the upper frame.")
 
 
         Attrition_by_dep()
-
 
 
 class App(customtkinter.CTk):
