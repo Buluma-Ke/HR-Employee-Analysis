@@ -14,10 +14,8 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-
 customtkinter.set_appearance_mode("system")  # default
 customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
-
 
 
 class Toplevel(customtkinter.CTkToplevel):
@@ -57,6 +55,8 @@ class Toplevel(customtkinter.CTkToplevel):
         # Initially show the general data page
         self.show_frame(self.general_data_pg)
 
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)  # Handles window closing
+
     def create_button(self, text, color):
         button = customtkinter.CTkButton(master=self.menu_bar_frame,
                                            command=lambda: self.on_button_click(button, text),
@@ -80,7 +80,6 @@ class Toplevel(customtkinter.CTkToplevel):
             widget.destroy()
         
         frame_func()
-
 
 
     def general_data_pg(self): 
@@ -225,8 +224,6 @@ class Toplevel(customtkinter.CTkToplevel):
         except exc.SQLAlchemyError as e:
             print(e)
             messagebox.showerror("Error", f"Database query failed: {str(e)}")
-
-
 
 
 
@@ -429,8 +426,6 @@ class Toplevel(customtkinter.CTkToplevel):
         Job_Role()
 
 
-
-
     def compensation_analysis_pg(self):
         self.Att3_data_frm = customtkinter.CTkFrame(self.page_frame)
         self.Att3_data_frm.pack(fill=customtkinter.BOTH, expand=True)
@@ -484,7 +479,6 @@ class Toplevel(customtkinter.CTkToplevel):
             canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
         
         depertment()
-
 
 
         def Education_field():
@@ -1014,6 +1008,13 @@ class Toplevel(customtkinter.CTkToplevel):
 
 
         Attrition_by_dep()
+
+    def on_closing(self):
+    #a confirmation dialog before closing
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            self.destroy()  # This will close the Toplevel window
+            self.master.destroy()
+
 
 
 class App(customtkinter.CTk):
