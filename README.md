@@ -18,4 +18,6 @@ The findings of my Analysis are all presented in a graphical user interface, mad
 The biggest headache to any data based project is missing values, I avoided deleting any values, which would mean deleting employees, which wouldn't make sense, I logically filled in the ones I could, However of 4410 entries, around 20 rows with missing values wouldn't make a difference to my findings.
 
 In the future i want to intergrate a machine learning algorithm that can better predict employee attrition, preventiong the loss of much needed talent within the organisation.
- 
+
+Here is how the ui looks;
+![page1](/home/alberto/Pictures/ScreenshotsScreenshotfrom2024-11-0311-58-02.png)
