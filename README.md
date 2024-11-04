@@ -20,4 +20,6 @@ The biggest headache to any data based project is missing values, I avoided dele
 In the future i want to intergrate a machine learning algorithm that can better predict employee attrition, preventiong the loss of much needed talent within the organisation.
 
 Here is how the ui looks;
-![ui](/home/alberto/Documents/Employee_Data_Analysis/ui_vid.mp4)
+![ui1](/home/alberto/Documents/Employee_Data_Analysis/gen_data.png)
+![ui1](/home/alberto/Documents/Employee_Data_Analysis/dem_insights.png)
+![ui1](/home/alberto/Documents/Employee_Data_Analysis/attrition.png)
