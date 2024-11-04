@@ -1,4 +1,4 @@
-** EMPLOYEE DATA ANALYIS **
+ **EMPLOYEE**  **DATA**  **ANALYIS**
 
 The dataset contains three tables;
     General data - gives us important individual employee details eg, age, employee id, Attrition, deparment etc
@@ -9,7 +9,7 @@ The dataset contains three tables;
 
 From this we can get a complete breakdown of this; workplace, painting a Human Resorce picture of the typicall employee and why They might decide to get attrited.
 
-** What's this about **
+**WHAT'S**  **THIS**  **ABOUT?**
 
 I used Jupyter notebook to clean and do Extensive Data analysis on the three datasets, This was the tool of choice for its flexibility when handling data related tasks, Allowing me to get a deep dive undersanding of what we are working with. I loaded the data into a mysql database, which comes with all the perks of a relational database i.e easy querying of data allowing me to get accses and look at the data in a whole new dimension.
 
